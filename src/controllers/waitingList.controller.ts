@@ -1,3 +1,4 @@
+// src/controllers/waitingList.controller.ts
 import { Request, Response } from "express";
 import { WaitingListService } from "../services/waitingList.service";
 
@@ -10,10 +11,14 @@ export class WaitingListController {
 
   joinWaitingList = async (req: Request, res: Response): Promise<void> => {
     try {
-      const userId = req.body.userId; // From authenticated user
+      const userId = req.user._id;
       const result = await this.waitingListService.addToWaitingList(
-        userId,
-        req.body
+        userId.toString(),
+        {
+          ...req.body,
+          name: req.user.name,
+          phoneNumber: req.user.phoneNumber
+        }
       );
 
       if (!result.success) {
@@ -23,7 +28,6 @@ export class WaitingListController {
 
       res.status(200).json(result);
     } catch (error: any) {
-      console.error("Join waiting list error:", error);
       res.status(500).json({
         success: false,
         message: "Failed to join waiting list",
@@ -34,7 +38,7 @@ export class WaitingListController {
 
   checkWaitingStatus = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { userId } = req.params;
+      const userId = req.user._id.toString();
       const result = await this.waitingListService.getWaitingStatus(userId);
       res.status(200).json(result);
     } catch (error: any) {
@@ -46,7 +50,6 @@ export class WaitingListController {
     }
   };
 
-  // Waiter endpoints
   getWaitingList = async (req: Request, res: Response): Promise<void> => {
     try {
       const result = await this.waitingListService.getAllWaiting();
@@ -64,6 +67,12 @@ export class WaitingListController {
     try {
       const { id } = req.params;
       const result = await this.waitingListService.notifyCustomer(id);
+      
+      if (!result.success) {
+        res.status(400).json(result);
+        return;
+      }
+
       res.status(200).json(result);
     } catch (error: any) {
       res.status(500).json({
@@ -78,6 +87,12 @@ export class WaitingListController {
     try {
       const { id } = req.params;
       const result = await this.waitingListService.seatCustomer(id);
+      
+      if (!result.success) {
+        res.status(400).json(result);
+        return;
+      }
+
       res.status(200).json(result);
     } catch (error: any) {
       res.status(500).json({

@@ -25,6 +25,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.4",
     "morgan": "^1.10.0",
+    "node-fetch": "^3.3.2",
     "typescript": "^5.7.2"
   },
   "description": "",

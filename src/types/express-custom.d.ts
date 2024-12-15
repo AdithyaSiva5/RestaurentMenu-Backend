@@ -5,7 +5,7 @@ declare global {
   namespace Express {
     interface Request {
       deviceInfo: DeviceInfo;
-      user?: any;
+      user?: IUser;
     }
   }
 }

@@ -6,7 +6,7 @@ export interface IUser extends Document {
   name: string;
   numberOfMembers: number;
   isVerified: boolean;
-  role: "customer" | "admin";
+  role: "customer" | "waiter" | "admin";
   createdAt: Date;
   updatedAt: Date;
   lastLogin?: Date;
@@ -34,7 +34,7 @@ const UserSchema = new Schema({
   },
   role: {
     type: String,
-    enum: ["customer", "admin"],
+    enum: ["customer", "waiter", "admin"],
     default: "customer",
   },
   lastLogin: {
@@ -48,6 +48,11 @@ const UserSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+});
+
+UserSchema.pre("save", function (next) {
+  this.updatedAt = new Date();
+  next();
 });
 
 export const User = mongoose.model<IUser>("User", UserSchema);
