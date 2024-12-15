@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express-serve-static-core";
 import Joi from "joi";
-
 const phoneAuthSchema = Joi.object({
   phoneNumber: Joi.string()
     .pattern(/^\+[1-9]\d{1,14}$/)
@@ -19,7 +18,7 @@ const phoneAuthSchema = Joi.object({
     "number.max": "Maximum 20 members allowed",
     "any.required": "Number of members is required",
   }),
-  recaptchaToken: Joi.string().optional(), // For development
+  recaptchaToken: Joi.string().optional(), 
 });
 
 const otpVerificationSchema = Joi.object({
@@ -75,4 +74,28 @@ export const validateOTPVerification = (
   } catch (error: any) {
     next(error);
   }
+};
+const waitingListSchema = Joi.object({
+  numberOfMembers: Joi.number().required().min(1).max(20).messages({
+    "number.min": "Number of members must be at least 1",
+    "number.max": "Maximum 20 members allowed",
+    "any.required": "Number of members is required",
+  }),
+});
+
+export const validateWaitingList = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  const { error } = waitingListSchema.validate(req.body, { abortEarly: false });
+  if (error) {
+    res.status(400).json({
+      success: false,
+      message: "Validation failed",
+      error: error.details.map((detail) => detail.message),
+    });
+    return;
+  }
+  next();
 };
